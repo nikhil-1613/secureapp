@@ -1,15 +1,14 @@
 import mongoose from "mongoose";
-import { unique } from "next/dist/build/utils";
-import { type } from "os";
+
 
 const userSchema = new mongoose.Schema({
     email:{
-        type:string,
-        required:true,
-        unique:true
+      type:String,
+      required:true,
+      unique:true,
     },
     password:{
-        type:string,
+        type:String,
         required:true,
         unique:true
     },
