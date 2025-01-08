@@ -1,3 +1,6 @@
+
+
+
 "use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -55,39 +58,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
-// "use client";
-// import { useRouter } from "next/navigation";
-// import { useState } from "react";
-// import axios from "axios";
-
-// export default function ProfilePage() {
-//   const router = useRouter();
-//   const [data, setData] = useState("nothing");
-
-//   const getUserDetails = async () => {
-//     try {
-//       const res = await axios.get("/api/users/me");
-//       console.log(res.data);
-//       setData(res.data);
-//     } catch (error) {
-//       console.error("Error fetching user details:", error);
-//       setData("Error fetching user details");
-//     }
-//   };
-
-//   return (
-//     <div className="flex flex-col items-center justify-center h-screen">
-//       <h1 className="text-3xl font-bold">Profile Page</h1>
-//       <button
-//         onClick={getUserDetails}
-//         className="mt-5 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-//       >
-//         Get User Details
-//       </button>
-//       <div className="mt-5">
-//         {typeof data === "object" ? JSON.stringify(data, null, 2) : data}
-//       </div>
-//     </div>
-//   );
-// }
