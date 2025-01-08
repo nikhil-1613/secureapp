@@ -13,7 +13,7 @@ const userDetails = mongoose.Schema({
     },
     joiningDate:{
         type:Date,
-        default:Date.now,
+        
     },
     workingLocation:{
         type:String,

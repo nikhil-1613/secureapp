@@ -12,6 +12,22 @@
             required:true,
             unique:true
         },
+        userName: {
+            type: String,
+            required: true,
+        },
+        joiningDate:{
+            type:Date,
+            
+        },
+        workingLocation:{
+            type:String,
+            required:true,
+        },
+        shiftTimings:{
+            type:String,
+            required:true,
+        },
         isAdmin:{
             type:Boolean,
             default:false,

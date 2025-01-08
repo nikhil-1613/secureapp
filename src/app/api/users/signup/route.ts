@@ -10,12 +10,12 @@ export async function POST(request: NextRequest) {
 
         // Parse the request body
         const reqBody = await request.json();
-        const { email, password } = reqBody;
+        const { email, password, userName, workingLocation, shiftTimings } = reqBody;
 
         // Validate input fields
-        if (!email || !password) {
+        if (!email || !password || !userName || !workingLocation || !shiftTimings) {
             return NextResponse.json(
-                { error: "Email and password are required." },
+                { error: "All fields (email, password, userName, workingLocation, shiftTimings) are required." },
                 { status: 400 }
             );
         }
@@ -37,6 +37,10 @@ export async function POST(request: NextRequest) {
         const newUser = new User({
             email,
             password: hashedPassword,
+            userName,
+            workingLocation,
+            shiftTimings,
+            joiningDate: new Date(), // Automatically set the joining date
         });
 
         const savedUser = await newUser.save();
@@ -48,6 +52,11 @@ export async function POST(request: NextRequest) {
             user: {
                 id: savedUser._id,
                 email: savedUser.email,
+                userName: savedUser.userName,
+                workingLocation: savedUser.workingLocation,
+                shiftTimings: savedUser.shiftTimings,
+                joiningDate: savedUser.joiningDate,
+                isAdmin: savedUser.isAdmin,
             },
         });
 
@@ -70,13 +79,14 @@ export async function POST(request: NextRequest) {
     }
 }
 
-// import {connect} from "@/dbConfig/dbConfig"
+// import { connect } from "@/dbConfig/dbConfig";
 // import User from "@/models/userModel";
 // import { NextRequest, NextResponse } from "next/server";
 // import bcryptjs from "bcryptjs";
 
 // export async function POST(request: NextRequest) {
 //     try {
+//         // Connect to the database
 //         await connect();
 
 //         // Parse the request body
@@ -112,6 +122,7 @@ export async function POST(request: NextRequest) {
 
 //         const savedUser = await newUser.save();
 
+//         // Return success response with user info (excluding password)
 //         return NextResponse.json({
 //             message: "User created successfully",
 //             success: true,
@@ -121,15 +132,21 @@ export async function POST(request: NextRequest) {
 //             },
 //         });
 
-//     } catch (error:any) {
+//     } catch (error: any) {
 //         console.error("Error in POST /api/users/signup:", error);
-//         // If there's a duplicate email error, handle it gracefully
+
+//         // Handle known error codes (e.g., duplicate email)
 //         if (error.code === 11000) {
 //             return NextResponse.json(
 //                 { error: "Email already exists" },
 //                 { status: 400 }
 //             );
 //         }
-//         return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
+
+//         // Return a generic internal server error
+//         return NextResponse.json(
+//             { error: error.message || "Internal Server Error" },
+//             { status: 500 }
+//         );
 //     }
 // }
