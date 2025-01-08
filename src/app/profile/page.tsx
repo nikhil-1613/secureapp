@@ -1,188 +1,92 @@
 "use client";
-import { useState, useEffect } from "react";
-import axios from "axios";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "react-hot-toast";
+import Link from "next/link";
+import axios from "axios";
 
 export default function ProfilePage() {
-  interface UserProfile {
-    userName: string;
-    email: string;
-    workingLocation: string;
-    shiftTimings: string;
-    joiningDate: string;
-    isAdmin: boolean;
-  }
-
-  const [user, setUser] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string>("");
   const router = useRouter();
+  const [data, setData] = useState("nothing");
 
-  useEffect(() => {
-    // Fetch user data from the backend
-    const fetchUserProfile = async () => {
-      try {
-        // Get the token from cookies (you could use a library like 'js-cookie' to get the token from cookies)
-        const token = document.cookie.split('; ').find(row => row.startsWith('token=')).split('=')[1];
+  // Fetch user details
+  const getUserDetails = async () => {
+    try {
+      const res = await axios.get("/api/users/me");
+      console.log(res.data);
+      setData(res.data);
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+      setData("Error fetching user details");
+    }
+  };
 
-        if (!token) {
-          setError("User is not authenticated. Please log in.");
-          return;
-        }
-
-        // Fetch user profile by email from backend
-        const response = await axios.get(`/api/users/profile`, {
-          headers: {
-            Authorization: `Bearer ${token}`,  // Send the token in the Authorization header
-          }
-        });
-
-        if (response.data.success) {
-          setUser(response.data.user);
-        } else {
-          setError("User not found or unable to fetch data.");
-        }
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-        setError("Error fetching profile. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserProfile();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="flex flex-col justify-center items-center min-h-screen">
-        <h1 className="text-4xl font-bold text-black">Loading Profile...</h1>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col justify-center items-center min-h-screen">
-        <h1 className="text-4xl font-bold text-red-500">{error}</h1>
-        <button
-          onClick={() => router.push('/login')}
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
-        >
-          Go to Login
-        </button>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="flex flex-col justify-center items-center min-h-screen">
-        <h1 className="text-4xl font-bold text-red-500">User Not Found</h1>
-      </div>
-    );
-  }
+  // Logout function
+  const logout = async () => {
+    try {
+      const res = await axios.get("/api/users/logout");
+      console.log(res.data);
+      toast.success("Logout successful");
+      router.push("/login");
+    } catch (error) {
+      console.error("Error logging out:", error);
+      toast.error("Error logging out"); 
+    }
+  };
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-screen">
-      <h1 className="text-4xl font-bold text-black mb-4">Profile Page</h1>
-      <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full max-w-md">
-        <p className="text-lg mb-2">
-          <strong>Name:</strong> {user.userName}
-        </p>
-        <p className="text-lg mb-2">
-          <strong>Email:</strong> {user.email}
-        </p>
-        <p className="text-lg mb-2">
-          <strong>Working Location:</strong> {user.workingLocation}
-        </p>
-        <p className="text-lg mb-2">
-          <strong>Shift Timings:</strong> {user.shiftTimings}
-        </p>
-        <p className="text-lg mb-2">
-          <strong>Joining Date:</strong>{" "}
-          {new Date(user.joiningDate).toLocaleDateString()}
-        </p>
-        <p className="text-lg mb-2">
-          <strong>Admin:</strong> {user.isAdmin ? "Yes" : "No"}
-        </p>
+    <div className="flex flex-col items-center justify-center h-screen">
+      <h1 className="text-3xl font-bold">Profile Page</h1>
+      <button
+        onClick={getUserDetails}
+        className="mt-5 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+      >
+        Get User Details
+      </button>
+      <button
+        onClick={logout}
+        className="mt-5 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+      >
+        Logout
+      </button>
+      <div className="mt-5">
+        {typeof data === "object" ? JSON.stringify(data, null, 2) : data}
       </div>
     </div>
   );
 }
 
 // "use client";
-// import { useState, useEffect } from "react";
+// import { useRouter } from "next/navigation";
+// import { useState } from "react";
 // import axios from "axios";
 
 // export default function ProfilePage() {
-//   interface UserProfile {
-//     userName: string;
-//     email: string;
-//     workingLocation: string;
-//     shiftTimings: string;
-//     joiningDate: string;
-//     isAdmin: boolean;
-//   }
+//   const router = useRouter();
+//   const [data, setData] = useState("nothing");
 
-//   const [user, setUser] = useState<UserProfile | null>(null);
-//   const [loading, setLoading] = useState(true);
-
-//   useEffect(() => {
-//     const fetchUserProfile = async () => {
-//       try {
-//         const email = "example@example.com"; // Replace this with logic to fetch the user's email
-//         const response = await axios.get(`/api/users/profile?email=${email}`);
-//         setUser(response.data.user);
-//       } catch (error) {
-//         console.error("Error fetching user profile:", error);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchUserProfile();
-//   }, []);
-
-//   if (loading) {
-//     return (
-//       <div className="flex flex-col justify-center items-center min-h-screen">
-//         <h1 className="text-4xl font-bold text-black">Loading Profile...</h1>
-//       </div>
-//     );
-//   }
-
-//   if (!user) {
-//     return (
-//       <div className="flex flex-col justify-center items-center min-h-screen">
-//         <h1 className="text-4xl font-bold text-red-500">User Not Found</h1>
-//       </div>
-//     );
-//   }
+//   const getUserDetails = async () => {
+//     try {
+//       const res = await axios.get("/api/users/me");
+//       console.log(res.data);
+//       setData(res.data);
+//     } catch (error) {
+//       console.error("Error fetching user details:", error);
+//       setData("Error fetching user details");
+//     }
+//   };
 
 //   return (
-//     <div className="flex flex-col justify-center items-center min-h-screen">
-//       <h1 className="text-4xl font-bold text-black mb-4">Profile Page</h1>
-//       <div className="bg-gray-100 p-6 rounded-lg shadow-md w-full max-w-md">
-//         <p className="text-lg mb-2">
-//           <strong>Name:</strong> {user.userName}
-//         </p>
-//         <p className="text-lg mb-2">
-//           <strong>Email:</strong> {user.email}
-//         </p>
-//         <p className="text-lg mb-2">
-//           <strong>Working Location:</strong> {user.workingLocation}
-//         </p>
-//         <p className="text-lg mb-2">
-//           <strong>Shift Timings:</strong> {user.shiftTimings}
-//         </p>
-//         <p className="text-lg mb-2">
-//           <strong>Joining Date:</strong>{" "}
-//           {new Date(user.joiningDate).toLocaleDateString()}
-//         </p>
-//         <p className="text-lg mb-2">
-//           <strong>Admin:</strong> {user.isAdmin ? "Yes" : "No"}
-//         </p>
+//     <div className="flex flex-col items-center justify-center h-screen">
+//       <h1 className="text-3xl font-bold">Profile Page</h1>
+//       <button
+//         onClick={getUserDetails}
+//         className="mt-5 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+//       >
+//         Get User Details
+//       </button>
+//       <div className="mt-5">
+//         {typeof data === "object" ? JSON.stringify(data, null, 2) : data}
 //       </div>
 //     </div>
 //   );
