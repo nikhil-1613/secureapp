@@ -17,10 +17,11 @@ const requirementSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    shiftTimimgs:{
-        type: String,
-        required: true,
-    },
+    shiftTimings: { type: String, required: true },
+    // shiftTimimgs:{
+    //     type: String,
+    //     required: true,
+    // },
     Purpose:{
         type: String,
         required: true,
