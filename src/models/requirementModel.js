@@ -30,6 +30,10 @@ const requirementSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    address:{
+        type: String,
+        required: true,
+    }
 });
 
 const Requirement = mongoose.models.Requirement || mongoose.model("Requirement", requirementSchema);

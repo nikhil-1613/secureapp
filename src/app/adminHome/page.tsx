@@ -59,7 +59,7 @@ export default function AdminNav() {
             </Link>
           </li>
           <li className="px-4 py-2 sm:py-0">
-            <Link href="/addRequirement" className="hover:text-gray-300">
+            <Link href="/addrequirement" className="hover:text-gray-300">
               Add Requirement
             </Link>
           </li>

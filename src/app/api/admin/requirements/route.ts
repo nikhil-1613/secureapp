@@ -12,10 +12,10 @@ export async function POST(request: NextRequest) {
     console.log("Request Body:", body); // Debugging log
 
     // Extract required fields
-    const { name, location, Date, shift, shiftTimings, Purpose, staffRequired } = body;
+    const { name, location, Date, shift, shiftTimings, Purpose, staffRequired,address } = body;
 
     // Validate input fields
-    if (!name || !location || !Date || !shift || !shiftTimings || !Purpose || !staffRequired) {
+    if (!name || !location || !Date || !shift || !shiftTimings || !Purpose || !staffRequired || !address) {
       return NextResponse.json({ error: "All fields are required" }, { status: 400 });
     }
 
@@ -28,21 +28,30 @@ export async function POST(request: NextRequest) {
       shiftTimings,
       Purpose,
       staffRequired,
+      address,
     });
 
     // Save the requirement to the database
     await requirement.save();
-    console.log("Requirement saved successfully:", requirement); // Debugging log
-
-    // Respond with success
     return NextResponse.json({ success: true, data: requirement }, { status: 201 });
   } catch (error: any) {
-    // Handle errors
-    console.error("Error saving requirement:", error.message); // Debugging log
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
+export async function GET() {
+
+  await connect();
+  try {
+    const requirements = await Requirement.find();
+    return NextResponse.json({ success: true, data: requirements }, { status: 200 });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  } 
+}
+
+
+// https://maps.app.goo.gl/iub6Gw4jBccx5CVSA
 // import { connect } from "@/dbConfig/dbConfig";
 // import Requirement from "@/models/requirementModel";
 // import { NextRequest,NextResponse } from "next/server";
