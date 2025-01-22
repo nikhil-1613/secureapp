@@ -5,7 +5,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
-import Link from "next/link";
+// import Link from "next/link";
 import axios from "axios";
 
 export default function ProfilePage() {

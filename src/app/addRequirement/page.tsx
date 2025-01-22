@@ -1,11 +1,36 @@
 "use client";
 
+interface Requirement {
+  _id?:string;
+  name: string;
+  location: string;
+  Date: string;
+  shift: string;
+  shiftTimings: string;
+  Purpose: string;
+  staffRequired: number;
+  address: string;
+  // Add any additional properties if needed, e.g., `acceptedGuards` when defined.
+}
+
+
+interface FormData{
+  name: string;
+  location: string;
+  Date: string;
+  shift: string;
+  shiftTimings: string;
+  Purpose: string;
+  staffRequired: string;
+  address: string;
+}
+
 import { useState, useEffect } from "react";
 import axios, { AxiosError } from "axios";
 import toast from "react-hot-toast";
 export default function AddRequirementPage() {
   const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: "",
     location: "",
     Date: "",
@@ -17,7 +42,7 @@ export default function AddRequirementPage() {
   });
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [requirements, setRequirements] = useState([]);
+  const [requirements, setRequirements] = useState<Requirement[]>([]);
 
   const fetchRequirements = async () => {
     try {
@@ -56,6 +81,7 @@ export default function AddRequirementPage() {
 
     try {
       const res = await axios.post("/api/admin/requirements", formData);
+      console.log(res.data);
       setSuccessMessage("Requirement added successfully!");
       setFormData({
         name: "",
@@ -68,8 +94,15 @@ export default function AddRequirementPage() {
         address: "",
       });
       setShowModal(false);
-    } catch (error: any) {
-      setErrorMessage(error.response?.data?.error || "Something went wrong.");
+    }catch (error: unknown) {
+      console.log("Login failed", error);
+  
+      if (error instanceof AxiosError && error.response?.data?.error) {
+        setErrorMessage(error.response?.data?.error || "Something went wrong.");
+
+      } else if (error instanceof Error) {
+        setErrorMessage(error.message || "Something went wrong.");
+      }
     }
   };
 
@@ -98,7 +131,7 @@ export default function AddRequirementPage() {
                     type={key === "Date" ? "date" : "text"}
                     id={key}
                     name={key}
-                    value={(formData as any)[key]}
+                    value={(formData as FormData)[key as keyof FormData]}
                     onChange={handleChange}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring focus:ring-opacity-50 p-3"
                     required
@@ -134,18 +167,19 @@ export default function AddRequirementPage() {
           <p className="text-gray-500">No requirements available.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {requirements.map((requirement: any) => (
+            {requirements.map((requirement: Requirement) => (
               <div
                 key={requirement._id}
                 className="bg-white p-6 rounded-lg shadow-md border hover:shadow-lg transition-transform transform hover:scale-105"
               >
                 <h4 className="text-xl font-semibold text-blue-600">{requirement.name}</h4>
-                <p className="text-sm text-gray-600 mt-2">Location: {requirement.location}</p>
+                {/* <p className="text-sm text-gray-600 mt-2">Location: {requirement.location}</p> */}
                 <p className="text-sm text-gray-600">Date: {requirement.Date}</p>
                 <p className="text-sm text-gray-600">Shift: {requirement.shift}</p>
                 <p className="text-sm text-gray-600">Shift Timings: {requirement.shiftTimings}</p>
                 <p className="text-sm text-gray-600">Purpose: {requirement.Purpose}</p>
                 <p className="text-sm text-gray-600">Staff Required: {requirement.staffRequired}</p>
+                <p className="text-sm text-gray-600">Address: {requirement.address}</p>
 
                 <div className="mt-4 flex justify-between items-center">
                   <button

@@ -1,16 +1,23 @@
-
 import { NextResponse } from "next/server";
 
-export async function GET() {
-    try {
-        const response = NextResponse.json({
-            message: "Logout successful",
-            suceess: true,
-        });
-        response.cookies.set("token", "", { httpOnly: true, expires: new Date(0) });
-        return response;
-    } catch (error:any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
+export async function POST() {
+    const response = NextResponse.json({ message: "Logout successful" });
+    response.cookies.set("token", "", { maxAge: 0 });
+    return response;
 }
+
+// import { NextResponse } from "next/server";
+
+// export async function GET() {
+//     try {
+//         const response = NextResponse.json({
+//             message: "Logout successful",
+//             suceess: true,
+//         });
+//         response.cookies.set("token", "", { httpOnly: true, expires: new Date(0) });
+//         return response;
+//     } catch (error:any) {
+//         return NextResponse.json({ error: error.message }, { status: 500 });
+//     }
+
+// }

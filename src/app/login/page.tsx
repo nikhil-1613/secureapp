@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation"; // To handle navigation
 import { toast } from "react-hot-toast"; // To display toast notifications
-import axios from "axios"; // To make HTTP requests
+import axios, { AxiosError } from "axios"; // To make HTTP requests
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -30,12 +30,16 @@ export default function LoginPage() {
             localStorage.setItem("token", response.data.token);
 
             // Redirect to the profile page
-            router.push("/profile");
+            router.push("/home");
 
-        } catch (error: any) {
+        } catch (error: unknown) {
             // Handle login error and display error toast
-            console.log("Login failed", error.response?.data?.error || error.message);
-            toast.error(error.response?.data?.error || "Login failed! Please try again.");
+            if(axios.isAxiosError(error)) {
+                toast.error(error.response?.data.message || "An error occurred");
+            } else {
+                toast.error("An error occurred");
+            }
+
         } finally {
             setButtonDisabled(false); // Re-enable the button after the request completes
         }

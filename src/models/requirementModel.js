@@ -18,10 +18,7 @@ const requirementSchema = new mongoose.Schema({
         required: true,
     },
     shiftTimings: { type: String, required: true },
-    // shiftTimimgs:{
-    //     type: String,
-    //     required: true,
-    // },
+   
     Purpose:{
         type: String,
         required: true,
@@ -33,7 +30,10 @@ const requirementSchema = new mongoose.Schema({
     address:{
         type: String,
         required: true,
-    }
+    },
+    // acceptedGuards:{
+        
+    // },
 });
 
 const Requirement = mongoose.models.Requirement || mongoose.model("Requirement", requirementSchema);

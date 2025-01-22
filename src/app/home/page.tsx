@@ -3,13 +3,30 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { FaBars } from "react-icons/fa"; // Import bars icon from react-icons
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 export default function HomePage() {
     const [menuOpen, setMenuOpen] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [requirements, setRequirements] = useState<any[]>([]); // Ensure it's an array
     const router = useRouter();
 
+    // Check if the user is logged in
+    useEffect(() => {
+        const checkLoginStatus = async () => {
+            try {
+                const response = await axios.get("/api/auth/status");
+                setIsLoggedIn(response.data.isLoggedIn);
+            } catch (error) {
+                console.error("Failed to fetch login status", error);
+                setIsLoggedIn(false);
+            }
+        };
+
+        checkLoginStatus();
+    }, []);
+
+    
     // Fetch requirements from the API
     const fetchRequirements = async () => {
         try {
@@ -20,8 +37,14 @@ export default function HomePage() {
             } else {
                 console.error("Fetched data is not an array:", response.data.data);
             }
-        } catch (error: any) {
-            console.error("Error fetching requirements:", error.response?.data?.error || error.message);
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                console.error("An error occurred:", error.response?.data.message || "No error message");
+
+            }
+            else {
+                console.error("An error occurred:", error);
+            }
         }
     };
 
@@ -42,6 +65,30 @@ export default function HomePage() {
     const handleProfileClick = () => {
         router.push("/profile");
     };
+    const handleSelect = async () => {
+        try {
+            const response = await axios.post("/api/admin/filling");
+            console.log(response.data);
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                console.error("An error occurred:", error.response?.data.message || "No error message");
+
+            }
+            else {
+                console.error("An error occurred:", error);
+            }
+        }
+    }
+    const handleLogout = async () => {
+        try {
+            await axios.post("/api/users/logout"); // Adjust API endpoint
+            setIsLoggedIn(false);
+            router.push("/login"); // Redirect to home
+        } catch (error) {
+            console.error("Logout failed", error);
+        }
+    };
+
 
     return (
         <div className="min-h-screen bg-gray-100">
@@ -86,7 +133,7 @@ export default function HomePage() {
                                     href="#dummy"
                                     className="block px-4 py-2 text-gray-700 hover:text-black"
                                 >
-                                    Dummy
+                                    Requirements
                                 </a>
                             </li>
                             <li>
@@ -99,18 +146,29 @@ export default function HomePage() {
                             </li>
                         </ul>
                         <div className="flex flex-col sm:flex-row sm:space-x-4 mt-4 sm:mt-0 px-4 sm:px-0">
-                            <button
-                                onClick={handleSignupClick}
-                                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
-                            >
-                                Sign Up
-                            </button>
-                            <button
-                                onClick={handleLoginClick}
-                                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition mt-2 sm:mt-0"
-                            >
-                                Login
-                            </button>
+                            {!isLoggedIn ? (
+                                <>
+                                    <button
+                                        onClick={handleSignupClick}
+                                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+                                    >
+                                        Sign Up
+                                    </button>
+                                    <button
+                                        onClick={handleLoginClick}
+                                        className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition mt-2 sm:mt-0"
+                                    >
+                                        Login
+                                    </button>
+                                </>
+                            ) : (
+                                <button
+                                    onClick={handleLogout}
+                                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+                                >
+                                    Logout
+                                </button>
+                            )}
                         </div>
                     </nav>
                 </div>
@@ -170,17 +228,23 @@ export default function HomePage() {
                                     className="bg-white p-4 rounded-lg shadow-md border"
                                 >
                                     <h4 className="font-semibold">{requirement.name}</h4>
-                                    <p className="text-sm text-gray-600">Location: {requirement.location}</p>
+                                    {/* <p className="text-sm text-gray-600">Location: {requirement.location}</p> */}
                                     <p className="text-sm text-gray-600">Date: {formattedDate}</p>
                                     <p className="text-sm text-gray-600">Shift: {requirement.shift}</p>
                                     <p className="text-sm text-gray-600">Shift Timings: {requirement.shiftTimings}</p>
                                     <p className="text-sm text-gray-600">Purpose: {requirement.Purpose}</p>
                                     <p className="text-sm text-gray-600">Staff Required: {requirement.staffRequired}</p>
                                     <button
-                                        onClick={() => window.open(requirement.address, "_blank")}
+                                        onClick={() => window.open(requirement.location, "_blank")}
                                         className="bg-blue-500 text-white mt-4 rounded-lg px-4 py-2 shadow-md hover:bg-blue-600 transition"
                                     >
                                         View Location
+                                    </button>
+                                    <button
+                                        onClick={handleSelect}
+                                        className="bg-green-500 text-white mt-4 rounded-lg px-4 py-2 shadow-md hover:bg-green-600 transition"
+                                    >
+                                        Select
                                     </button>
                                 </div>
                             );
@@ -228,16 +292,43 @@ export default function HomePage() {
         </div>
     );
 }
-
 // "use client";
 
-// import { useState } from "react";
+// import { useState, useEffect } from "react";
 // import { useRouter } from "next/navigation";
 // import { FaBars } from "react-icons/fa"; // Import bars icon from react-icons
+// import axios, { AxiosError } from "axios";
 
 // export default function HomePage() {
 //     const [menuOpen, setMenuOpen] = useState(false);
+//     const [requirements, setRequirements] = useState<any[]>([]); // Ensure it's an array
 //     const router = useRouter();
+
+//     // Fetch requirements from the API
+//     const fetchRequirements = async () => {
+//         try {
+//             const response = await axios.get("/api/admin/requirements");
+//             // Ensure the fetched data is an array
+//             if (Array.isArray(response.data.data)) {
+//                 setRequirements(response.data.data);
+//             } else {
+//                 console.error("Fetched data is not an array:", response.data.data);
+//             }
+//         } catch (error: unknown) {
+//             if(axios.isAxiosError(error)) {
+//                 console.error("An error occurred:", error.response?.data.message || "No error message");
+
+
+//             }
+//             else{
+//                 console.error("An error occurred:", error);
+//             }
+//         }
+//     };
+
+//     useEffect(() => {
+//         fetchRequirements();
+//     }, []);
 
 //     const toggleMenu = () => setMenuOpen(!menuOpen);
 
@@ -297,14 +388,6 @@ export default function HomePage() {
 //                                     className="block px-4 py-2 text-gray-700 hover:text-black"
 //                                 >
 //                                     Dummy
-//                                 </a>
-//                             </li>
-//                             <li>
-//                                 <a
-//                                     href="#footer"
-//                                     className="block px-4 py-2 text-gray-700 hover:text-black"
-//                                 >
-//                                     Footer
 //                                 </a>
 //                             </li>
 //                             <li>
@@ -370,10 +453,42 @@ export default function HomePage() {
 //                 id="dummy"
 //                 className="flex flex-col items-center py-16 bg-white text-gray-800"
 //             >
-//                 <h2 className="text-3xl font-bold mb-4">Dummy Section</h2>
-//                 <p className="text-lg max-w-3xl text-center">
-//                     Add your own content here. Use this section for showcasing features, articles, or anything else.
-//                 </p>
+//                 <h2 className="text-3xl font-bold mb-4">Today's Requirements</h2>
+//                 {requirements.length === 0 ? (
+//                     <p className="text-gray-500">No requirements available.</p>
+//                 ) : (
+//                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+//                         {requirements.map((requirement: any) => {
+//                             const formattedDate = new Date(requirement.Date).toLocaleDateString('en-US', {
+//                                 year: 'numeric',
+//                                 month: 'long',
+//                                 day: 'numeric',
+//                             });
+
+//                             return (
+//                                 <div
+//                                     key={requirement._id}
+//                                     className="bg-white p-4 rounded-lg shadow-md border"
+//                                 >
+//                                     <h4 className="font-semibold">{requirement.name}</h4>
+//                                     <p className="text-sm text-gray-600">Location: {requirement.location}</p>
+//                                     <p className="text-sm text-gray-600">Date: {formattedDate}</p>
+//                                     <p className="text-sm text-gray-600">Shift: {requirement.shift}</p>
+//                                     <p className="text-sm text-gray-600">Shift Timings: {requirement.shiftTimings}</p>
+//                                     <p className="text-sm text-gray-600">Purpose: {requirement.Purpose}</p>
+//                                     <p className="text-sm text-gray-600">Staff Required: {requirement.staffRequired}</p>
+//                                     <button
+//                                         onClick={() => window.open(requirement.address, "_blank")}
+//                                         className="bg-blue-500 text-white mt-4 rounded-lg px-4 py-2 shadow-md hover:bg-blue-600 transition"
+//                                     >
+//                                         View Location
+//                                     </button>
+//                                 </div>
+//                             );
+//                         })}
+
+//                     </div>
+//                 )}
 //             </section>
 
 //             {/* Footer */}
@@ -406,13 +521,8 @@ export default function HomePage() {
 //                             Twitter
 //                         </a>, and{" "}
 //                         <a href="#" className="text-blue-400 hover:underline">
-//                             LinkedIn
+//                             Instagram
 //                         </a>.
-//                     </p>
-
-//                     {/* Disclaimer */}
-//                     <p className="text-sm text-gray-400">
-//                         SecureVision is committed to providing reliable security solutions. Services and features are subject to change as per the latest industry standards.
 //                     </p>
 //                 </div>
 //             </footer>
