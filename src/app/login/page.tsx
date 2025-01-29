@@ -30,16 +30,22 @@ export default function LoginPage() {
             localStorage.setItem("token", response.data.token);
 
             // Redirect to the profile page
-            router.push("/home");
-
-        } catch (error: unknown) {
-            // Handle login error and display error toast
-            if(axios.isAxiosError(error)) {
-                toast.error(error.response?.data.message || "An error occurred");
-            } else {
-                toast.error("An error occurred");
+            
+            if(email == "admin123@gmail.com"){
+                router.push('/adminHome')
+            }
+            else{
+                router.push('/home')
             }
 
+        } catch (error: unknown) {
+            console.log("Login failed", error);
+        
+            if (error instanceof AxiosError && error.response?.data?.error) {
+                console.log(error.response.data.error);
+            } else if (error instanceof Error) {
+                console.log(error.message || "Something went wrong. Please try again.");
+            } 
         } finally {
             setButtonDisabled(false); // Re-enable the button after the request completes
         }

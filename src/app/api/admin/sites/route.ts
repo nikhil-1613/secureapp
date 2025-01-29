@@ -46,43 +46,21 @@ export async function GET(request: NextRequest) {
     }
 }
 
-    
-
-export async function DELETE(req: NextRequest) {
-    try {
-        // Get the location from the request body
-        const { location } = await req.json();
-
-        if (!location) {
-            return NextResponse.json({ error: "Location parameter is required" }, { status: 400 });
-        }
-
-        // Find the site by location
-        const site = await Site.findOne({ location });
-        if (!site) {
-            return NextResponse.json({ error: "Site not found" }, { status: 404 });
-        }
-
-        // Remove the site
-        await site.remove();
-
-        return NextResponse.json({ message: "Site deleted successfully" }, { status: 200 });
-
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-}
-
 
 export async function PUT(req: NextRequest) {
     try {
         // Get the id and the updated site data from the request body
         const { id, name, location, securityCount, address } = await req.json();
 
-        if (!id || !name || !location || !securityCount || !address) {
-            return NextResponse.json({ error: "All fields (id, name, location, securityCount, address) are required" }, { status: 400 });
+        // Validate that all fields are provided
+        if (!id || !name || !location || securityCount === undefined || !address) {
+            return NextResponse.json(
+                { error: "All fields (id, name, location, securityCount, address) are required" },
+                { status: 400 }
+            );
         }
 
+        // Find the site by ID
         const site = await Site.findById(id);
         if (!site) {
             return NextResponse.json({ error: "Site not found" }, { status: 404 });
@@ -91,16 +69,97 @@ export async function PUT(req: NextRequest) {
         // Update the site fields
         site.name = name;
         site.location = location;
-        site.securityCount = securityCount;
+        site.securityCount = Number(securityCount); // Ensure securityCount is a number
         site.address = address;
 
+        // Save the updated site
         await site.save();
-        return NextResponse.json(site, { status: 200 });
 
+        return NextResponse.json(site, { status: 200 });
     } catch (error: any) {
+        console.error("PUT Request Error:", error.message);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
+export async function DELETE(req: NextRequest) {
+    try {
+        const { id } = await req.json();
+
+        // Validate that the ID is provided
+        if (!id) {
+            return NextResponse.json({ error: "ID parameter is required" }, { status: 400 });
+        }
+
+        // Find the site by ID
+        const site = await Site.findById(id);
+        if (!site) {
+            return NextResponse.json({ error: "Site not found" }, { status: 404 });
+        }
+
+        // Remove the site
+        await site.remove();
+
+        return NextResponse.json({ message: "Site deleted successfully" }, { status: 200 });
+    } catch (error: any) {
+        console.error("DELETE Request Error:", error.message);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+}
+
+
+// export async function DELETE(req: NextRequest) {
+//     try {
+//         // Get the location from the request body
+//         const { location } = await req.json();
+
+//         if (!location) {
+//             return NextResponse.json({ error: "Location parameter is required" }, { status: 400 });
+//         }
+
+//         // Find the site by location
+//         const site = await Site.findOne({ location });
+//         if (!site) {
+//             return NextResponse.json({ error: "Site not found" }, { status: 404 });
+//         }
+
+//         // Remove the site
+//         await site.remove();
+
+//         return NextResponse.json({ message: "Site deleted successfully" }, { status: 200 });
+
+//     } catch (error: any) {
+//         return NextResponse.json({ error: error.message }, { status: 500 });
+//     }
+// }
+
+
+// export async function PUT(req: NextRequest) {
+//     try {
+//         // Get the id and the updated site data from the request body
+//         const { id, name, location, securityCount, address } = await req.json();
+
+//         if (!id || !name || !location || !securityCount || !address) {
+//             return NextResponse.json({ error: "All fields (id, name, location, securityCount, address) are required" }, { status: 400 });
+//         }
+
+//         const site = await Site.findById(id);
+//         if (!site) {
+//             return NextResponse.json({ error: "Site not found" }, { status: 404 });
+//         }
+
+//         // Update the site fields
+//         site.name = name;
+//         site.location = location;
+//         site.securityCount = securityCount;
+//         site.address = address;
+
+//         await site.save();
+//         return NextResponse.json(site, { status: 200 });
+
+//     } catch (error: any) {
+//         return NextResponse.json({ error: error.message }, { status: 500 });
+//     }
+// }
 
 // import { connect } from "@/dbConfig/dbConfig";
 // import { NextRequest, NextResponse } from "next/server";

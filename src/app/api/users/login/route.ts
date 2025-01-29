@@ -3,6 +3,7 @@ import User from "@/models/userModel";
 import { NextRequest, NextResponse } from "next/server";
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
+import {AxiosError} from "axios";
 
 export async function POST(request: NextRequest) {
     try {
@@ -20,7 +21,7 @@ export async function POST(request: NextRequest) {
                 { status: 400 }
             );
         }
-
+    
         // Check if the user exists
         const user = await User.findOne({ email });
         if (!user) {
@@ -64,15 +65,16 @@ export async function POST(request: NextRequest) {
         });
 
         return response;
-    } catch (error: any) {
-        console.error("Error in POST /api/users/login:", error);
-        return NextResponse.json(
-            { error: error.message || "Internal Server Error." },
-            { status: 500 }
-        );
+    }catch (error: unknown) {
+        console.log("Login failed", error);
+    
+        if (error instanceof AxiosError && error.response?.data?.error) {
+            console.log(error.response.data.error);
+        } else if (error instanceof Error) {
+            console.log(error.message || "Something went wrong. Please try again.");
+        } 
     }
 }
-
 // import { connect } from "@/dbConfig/dbConfig";
 // import User from "@/models/userModel";
 // import { NextRequest, NextResponse } from "next/server";

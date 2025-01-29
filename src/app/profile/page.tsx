@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
-import axios from "axios";
+import axios,{AxiosError} from "axios";
 
 interface User {
   userName: string;
@@ -27,12 +27,18 @@ export default function ProfilePage() {
         setUser(res.data.data); // Access the `data` field in the response
 
         toast.success("User details loaded!");
-      } catch (error: any) {
-        console.error("Error fetching user details:", error.response || error);
-        toast.error(
-          error.response?.data?.error || "Error fetching user details"
-        );
-      } finally {
+      }catch (error: unknown) {
+        console.log("Login failed", error);
+    
+        if (error instanceof AxiosError && error.response?.data?.error) {
+            console.log(error.response.data.error);
+        } else if (error instanceof Error) {
+            console.log(error.message || "Something went wrong. Please try again.");
+        } else {
+            console.log("An unknown error occurred.");
+        }
+    } 
+       finally {
         setIsLoading(false);
       }
     };
@@ -60,7 +66,7 @@ export default function ProfilePage() {
       ) : user ? (
         <div className="bg-white shadow-md rounded-lg p-5 w-full max-w-md">
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-            {user.userName}'s Profile
+            {user.userName} Profile
           </h2>
           <div className="mb-4">
             <p className="text-gray-600">

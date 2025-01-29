@@ -11,8 +11,10 @@ export default function SignUpPage() {
     email: "",
     password: "",
     userName: "",
+     phoneNumber:"",
     workingLocation: "",
     shiftTimings: "",
+   
   });
   const [buttonDisabled, setButtonDisabled] = useState(false);
 
@@ -27,7 +29,7 @@ export default function SignUpPage() {
 
       // Validate required fields before making the API call
       const missingFields = Object.entries(formData)
-        .filter(([_, value]) => !value)
+        .filter(([, value]) => !value)
         .map(([key]) => key);
 
       if (missingFields.length > 0) {
@@ -80,6 +82,15 @@ export default function SignUpPage() {
           onChange={handleInputChange}
           className="border border-gray-300 rounded w-full p-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
           required
+        />
+        <input
+          type="=phone"
+          name="phoneNumber"
+          placeholder="PhoneNumber"
+          onChange={handleInputChange}
+          className="border border-gray-300 rounded w-full p-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
+
         />
 
         {/* Email Input */}

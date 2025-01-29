@@ -28,6 +28,10 @@
             type:String,
             required:true,
         },
+        phoneNumber:{
+            type:Number,
+            required:true,
+        },
         isAdmin:{
             type:Boolean,
             default:false,

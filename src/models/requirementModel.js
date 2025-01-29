@@ -31,9 +31,18 @@ const requirementSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    // acceptedGuards:{
-        
-    // },
+   acceptedGuards:[
+    {
+        name:{
+            type:String,
+            required:true,
+        },
+        phoneNumber:{
+            type:Number,
+            required:true
+        }
+    }
+   ]
 });
 
 const Requirement = mongoose.models.Requirement || mongoose.model("Requirement", requirementSchema);

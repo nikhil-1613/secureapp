@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 interface User {
@@ -48,7 +49,7 @@ export default function EmployeeGrid() {
             {/* Image holder */}
             <div className="w-full h-48 bg-gray-300 rounded-lg mb-4 overflow-hidden">
               {user.profileImageUrl ? (
-                <img
+                <Image
                   src={user.profileImageUrl}
                   alt={user.userName}
                   className="w-full h-full object-cover"

@@ -3,12 +3,23 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { FaBars } from "react-icons/fa"; // Import bars icon from react-icons
-import axios, { AxiosError } from "axios";
-
+import axios from "axios";
+interface Requirement{
+    name: string;
+    location: string;
+    Date: Date;
+    shift: string;
+    shiftTimings: string;
+    Purpose: string;
+    staffRequired: number;
+    address: string;
+    // acceptedGuards can be added later as per your use case
+    // acceptedGuards?: string[]; // Example if you want to store an array of guards' names or IDs
+}
 export default function HomePage() {
     const [menuOpen, setMenuOpen] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [requirements, setRequirements] = useState<any[]>([]); // Ensure it's an array
+    const [requirements, setRequirements] = useState<Requirement[]>([]); // Ensure it's an array
     const router = useRouter();
 
     // Check if the user is logged in
@@ -65,21 +76,52 @@ export default function HomePage() {
     const handleProfileClick = () => {
         router.push("/profile");
     };
-    const handleSelect = async () => {
-        try {
-            const response = await axios.post("/api/admin/filling");
-            console.log(response.data);
-        } catch (error: unknown) {
-            if (axios.isAxiosError(error)) {
-                console.error("An error occurred:", error.response?.data.message || "No error message");
 
-            }
-            else {
-                console.error("An error occurred:", error);
-            }
+    const handleSelect = async (requirementId: string) => {
+        try {
+          // Make a POST request to the API endpoint with the requirementId
+          const response = await axios.post("/api/admin/requirements/select", {
+            requirementId, // Dynamic requirement ID
+          });
+      
+          // Log the response
+          console.log("Guard successfully added:", response.data);
+        } catch (error: unknown) {
+          if (axios.isAxiosError(error)) {
+            console.error(
+              "An error occurred:",
+              error.response?.data?.error || "No error message"
+            );
+          } else {
+            console.error("An unknown error occurred:", error);
+          }
         }
-    }
-    const handleLogout = async () => {
+      };
+      
+// const handleSelect = async (requirementId: string, guardDetails: { name: string; phoneNumber: number }) => {
+//   try {
+//     // Make a POST request to the API endpoint
+//     const response = await axios.post("/api/admin/requirements/select", {
+//       requirementId, // Pass the requirement ID
+//       guardDetails,  // Include the guard details
+//     });
+
+//     // Log the response
+//     console.log("Guard successfully added:", response.data);
+//   } catch (error: unknown) {
+//     if (axios.isAxiosError(error)) {
+//       console.error(
+//         "An error occurred:",
+//         error.response?.data?.error || "No error message"
+//       );
+//     } else {
+//       console.error("An unknown error occurred:", error);
+//     }
+//   }
+// };
+
+   
+        const handleLogout = async () => {
         try {
             await axios.post("/api/users/logout"); // Adjust API endpoint
             setIsLoggedIn(false);
@@ -130,7 +172,7 @@ export default function HomePage() {
                             </li>
                             <li>
                                 <a
-                                    href="#dummy"
+                                    href="#Requirement"
                                     className="block px-4 py-2 text-gray-700 hover:text-black"
                                 >
                                     Requirements
@@ -201,16 +243,16 @@ export default function HomePage() {
                     <li><strong>Customized security solutions</strong> - Tailored to meet your unique requirements.</li>
                 </ul>
                 <p className="text-lg max-w-3xl text-center mt-6 leading-relaxed">
-                    At SecureVision, we believe that security is not just a service—it’s a commitment. Our innovative technology and dedicated team work tirelessly to provide unmatched protection for your peace of mind.
+                    At SecureVision, we believe that security is not just a service—it s a commitment. Our innovative technology and dedicated team work tirelessly to provide unmatched protection for your peace of mind.
                 </p>
             </section>
 
-            {/* Dummy Section */}
+            {/* Requirement Section */}
             <section
-                id="dummy"
+                id="requirement"
                 className="flex flex-col items-center py-16 bg-white text-gray-800"
             >
-                <h2 className="text-3xl font-bold mb-4">Today's Requirements</h2>
+                <h2 className="text-3xl font-bold mb-4">Today Requirements</h2>
                 {requirements.length === 0 ? (
                     <p className="text-gray-500">No requirements available.</p>
                 ) : (
@@ -241,11 +283,11 @@ export default function HomePage() {
                                         View Location
                                     </button>
                                     <button
-                                        onClick={handleSelect}
-                                        className="bg-green-500 text-white mt-4 rounded-lg px-4 py-2 shadow-md hover:bg-green-600 transition"
-                                    >
-                                        Select
-                                    </button>
+                  onClick={() => handleSelect(requirement._id,  )}
+                  className="bg-green-500 text-white mt-4 rounded-lg px-4 py-2 shadow-md hover:bg-green-600 transition"
+                >
+                  Select
+                </button>
                                 </div>
                             );
                         })}

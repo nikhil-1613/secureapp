@@ -10,12 +10,12 @@ export async function POST(request: NextRequest) {
 
         // Parse the request body
         const reqBody = await request.json();
-        const { email, password, userName, workingLocation, shiftTimings } = reqBody;
+        const { email, password, userName, phoneNumber,workingLocation, shiftTimings } = reqBody;
 
         // Validate input fields
-        if (!email || !password || !userName || !workingLocation || !shiftTimings) {
+        if (!email || !password || !userName || !phoneNumber || !workingLocation || !shiftTimings) {
             return NextResponse.json(
-                { error: "All fields (email, password, userName, workingLocation, shiftTimings) are required." },
+                { error: "All fields (email, password, userName, phoneNumber, workingLocation, shiftTimings) are required." },
                 { status: 400 }
             );
         }
@@ -38,6 +38,7 @@ export async function POST(request: NextRequest) {
             email,
             password: hashedPassword,
             userName,
+            phoneNumber,
             workingLocation,
             shiftTimings,
             joiningDate: new Date(), // Automatically set the joining date
