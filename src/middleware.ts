@@ -20,7 +20,7 @@ export async function middleware(request: NextRequest) {
 
   const token = request.cookies.get('token')?.value || '';
 
-  console.log("This is the token:", token);
+  // console.log("This is the token:", token);
 
   // Allow access to public paths without token verification
   if (isPublicPath) {
